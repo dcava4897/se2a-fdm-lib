@@ -10,14 +10,15 @@ default_n_seg_fuse = 15;
 default_n_modeshapes = 30;
 
 mode_damp = zeros(default_n_modeshapes,1);
-mode_damp(1) = 0.01;
-mode_damp(3) = 0.03;
+% mode_damp(1) = 0.01;
+% mode_damp(3) = 0.03;
 
 valid_panel_number = @(x) isnumeric(x) && isscalar(x) && (x>1) && (mod(x,1)==0);
 
 addParameter(p,'cpacsfilename','SE2A_AC_Design_MR_V4_BwdSweep_CPACS2_Turbulent_twist.xml',@ischar);
 addParameter(p,'pchfilename','na_Se2A-MR-Ref-v4-twist_GFEM_MTOAa_S103_DMIG.pch',@ischar);
 addParameter(p,'gridfoldername','GRID_SE2A_MR_BWD_swept_V4_twist',@ischar);
+addParameter(p,'ncssfilename','',@ischar); % NeoCASS file containing, at a minimum, the beam_model struct
 addParameter(p,'actuatorsfilename','actuator_dynamics_params_se2a',@ischar);
 addParameter(p,'external_structure',false);
 addParameter(p,'mode_damp',mode_damp);
@@ -48,15 +49,21 @@ addParameter(p,'AdjustJigTwist',true,@islogical);
 parse(p,varargin{:})
 
 %% get handles from TiXI and TiGL
-tixiHandle = tixiOpenDocumentTry( ... 
-    which ( p.Results.cpacsfilename ) );
-tiglHandle = tiglOpenCPACSConfigurationTry( tixiHandle );
+% tixiHandle = tixiOpenDocumentTry( ... 
+%     which ( p.Results.cpacsfilename ) );
+% tiglHandle = tiglOpenCPACSConfigurationTry( tixiHandle );
 
-%% laod structure from NASTRAN file
+% Replace tixi/tigl with mtigl:
+cpacs_struct = xml2struct(p.Results.cpacsfilename);
+tiglHandle = mtigl(cpacs_struct.cpacs);
+
+%% load structure 
 axis_reversed = [ -1; 1; -1 ];
-if isstruct(p.Results.external_structure)
+if isstruct(p.Results.external_structure) %External
     structure = p.Results.external_structure;
-else
+elseif ~isempty(p.Results.ncssfilename) %From NeoCASS data
+    structure = ncssStructureCreate(p.Results.ncssfilename, axis_reversed);
+else % from NASTRAN file
     structure = structureCreateFromNastran( ...
         p.Results.pchfilename,p.Results.gridfoldername,axis_reversed);
 end
@@ -126,8 +133,8 @@ aircraft.wing_vtp = wing_vtp;
 aircraft.fuselage = fuselage;
 if p.Results.flexible
     aircraft.eom_flexible.structure_red = structure_red;
-    aircraft.eom_flexible.node_mass = structureGetNodeMass(structure,1:length(structure.xyz));
-    aircraft.eom_flexible.cg_nodes = structureGetNodeCg(structure,1:length(structure.xyz));
+    aircraft.eom_flexible.node_mass = structureGetNodeMass(structure,1:length(structure.idx_node_struct));
+    aircraft.eom_flexible.cg_nodes = structureGetNodeCg(structure,1:length(structure.idx_node_struct));
     aircraft.eom_flexible.body = body;
 else
     aircraft.eom_rigid = body;

@@ -8,3 +8,6 @@
 	path = modules/ladac
 	url = ../ladac
 	branch = feature/se2a-crm-integration
+[submodule "modules/mtigl"]
+	path = modules/mtigl
+	url = https://github.com/dcava4897/mtigl.git
