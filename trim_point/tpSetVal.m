@@ -8,7 +8,7 @@ sub_names = mdlGetTypeNames(trim_point.mdl_names,type);
 sub_array = tpGetType(trim_point,type);
 
 for i = 1:length(val_names)
-    if strcmp(val_names{i}(end-1:end),'__')
+    if endsWith(val_names{i},'__')%strcmp(val_names{i}(end-1:end),'__')
         for j = 1:length(vals)
             trim_point = tpSetVal(trim_point,type,{[val_names{i},num2str(j)]},vals(j));
         end
