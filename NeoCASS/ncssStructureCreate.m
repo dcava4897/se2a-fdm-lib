@@ -29,7 +29,7 @@ node_xyz_tmp = ncss_data.beam_model.Node.Coord;
 idx_node_nz = find(sum(ncss_data.beam_model.Node.DOF2,2)~=0);
 node_xyz_tmp = node_xyz_tmp(idx_node_nz,:)';
 
-[nodes_sec_tmp] = ncssIdentifyStructNodeSectionIdxs(node_xyz_tmp);
+% [nodes_sec_tmp] = ncssIdentifyStructNodeSectionIdxs(node_xyz_tmp);
 
 % Step 2: Find which nodes are fully represented in the structural model.
 %         We want to give the option to consider only nodes with 
@@ -56,8 +56,8 @@ node_struct_idx = ncss_data.beam_model.Node.DOF2(idx_node_nz,:);
 
 dof2_diff_mean_tmp = mean(diff(node_struct_idx,1),2);
 
-idx_node_struct = find(dof2_diff_mean_tmp<=6); %Indices of 'normal' structural nodes
-idx_node_rbe    = find(dof2_diff_mean_tmp>6); %Indices of nodes with reduced DOF due to rigid connections
+idx_node_struct = [1; find(dof2_diff_mean_tmp>=6)+1]; %Indices of 'normal' structural nodes (first node assumed real)
+idx_node_rbe    = find(dof2_diff_mean_tmp<6)+1; %Indices of nodes with reduced DOF due to rigid connections
 
 % Pick out individual DOFs which are eliminated due to rigid connections
 dof2_diff_tmp = diff(reshape(node_struct_idx', [], 1));

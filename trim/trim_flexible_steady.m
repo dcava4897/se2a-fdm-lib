@@ -172,7 +172,7 @@ end
 % x_0 = converge_unsteadyaero(x_0, u_0, model_description);
 
 %% Run trim
-trim_opts = [ 300; 2e-13 ];
+trim_opts = [ 300; 1e-10 ];%[ 300; 2e-13 ];
 
 [x_tr, u_tr, d_tr, y_tr, trim_fail] = jj_trim(modelName, x_0, u_0, xdot_0, y_0, X_Var_Idxs, U_Var_Idxs, Xdot_Reqts_Idxs, Y_Reqts_Idxs, ...
         X_Names, U_Names, Xdot_Names, Y_Names, [],[],1e-6*(1 + abs(x_0)),1e-6*(1 + abs(u_0)),trim_opts);

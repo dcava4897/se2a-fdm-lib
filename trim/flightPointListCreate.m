@@ -1,7 +1,6 @@
 function list_fp = flightPointListCreate(spec_fp)
 
-% Conditions the list of flight points, trims aircraft at them, saves
-% the results in the results folder (?), and returns the list of flight
+% Conditions the list of flight points, trims aircraft at them, and returns the list of flight
 % points and trim points
 
 %% Condition flight point list and prepare the sweep
@@ -43,9 +42,9 @@ for i_fp_set = 1:length(spec_fp)
                           'XCont_Var',  '_alpha_fus',      0
                           'XCont_Var',  'dHTP',      0
                           'XCont_Var',  'dHTP_dt',      0
-                          'XCont_Var',  'thrust',      1000
-                          'U_Var',      'throttle',      0.5
-                          'U_Var',      'de_htp',      0};
+                          'XCont_Var',  'thrust',      1e5
+                          'U_Var',      'thrust_cmd',      1e5
+                          'U_Var',      'de_htp_cmd',      0};
 
         list_trim_tasks =  Assemble_TrimSweep(sweepTrim_fp, spec_fp_tmp.DefType);
 
@@ -96,9 +95,9 @@ for i_fp_set = 1:length(spec_fp)
                           'XCont_Var',  '_alpha_fus',      0
                           'XCont_Var',  'dHTP',      0
                           'XCont_Var',  'dHTP_dt',      0
-                          'XCont_Var',  'thrust',      1000
-                          'U_Var',      'throttle',      0.5
-                          'U_Var',      'de_htp',      0};
+                          'XCont_Var',  'thrust',      1e5
+                          'U_Var',      'thrust_cmd',  1e5
+                          'U_Var',      'de_htp_cmd',      0};
 
         list_trim_tasks =  Assemble_TrimSweep(sweepTrim_fp, spec_fp_tmp.DefType);
 

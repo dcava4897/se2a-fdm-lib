@@ -68,6 +68,19 @@ else % from NASTRAN file
         p.Results.pchfilename,p.Results.gridfoldername,axis_reversed);
 end
 
+% Load section node indices
+if contains(p.Results.cpacsfilename, 'SE2A_AC_Design_MR') %CPACS is always provided, so it is more robust than one of the NASTRAN inputs.
+    if contains(p.Results.cpacsfilename, 'V1')
+        structure.nodes_sec = structureSecNodeIdxs_se2a('v1');
+    elseif contains(p.Results.cpacsfilename, 'V4')        
+        structure.nodes_sec = structureSecNodeIdxs_se2a('v4_twist');    
+    end
+elseif ~isempty(p.Results.ncssfilename) %NeoCASS-derived input
+    structure.nodes_sec = ncssIdentifyStructNodeSectionIdxs(structure.xyz);
+else
+    error('Unrecognized aircraft, section node indices cannot be identified. ');
+end
+
 %% init rigid body
 body.m = structureGetTotalMass( structure );
 body.I = structureGetTotalInertia( structure );
@@ -119,11 +132,16 @@ downwash = downwashUnstFromVlmWings( wing_main, wing_htp, 50 );
 
 %% engines
 if p.Results.flexible
-    engines = enginesCreate( p.Results.gridfoldername, structure_red, axis_reversed );
+    if ~isempty(p.Results.ncssfilename) %From NeoCASS data
+        engines = ncssEnginesCreate( structure.nodes_sec, structure.xyz, structure_red, axis_reversed );
+    else
+        engines = enginesCreate( p.Results.gridfoldername, structure_red, axis_reversed );
+    end
 end
 
 %% actuator dynamics
 act = loadParams(p.Results.actuatorsfilename);
+
 
 %% assign
 aircraft.body = body;
@@ -148,11 +166,13 @@ aircraft.config = config;
 
 aircraft.vtp_sideslip_factor = 1.7;
 
-%% Outputs
 
-% Loads
-% aircraft.outputs.loads = 
-
+%% outputs
+% For the moment, configures only load outputs (names, transformations)
+% Todo: redefine for consistency (split up 'aircraft' input)
+output_spec_tmp = outputSpecsInit;
+aircraft.outputs = aircraftConfigureOutputs(output_spec_tmp, aircraft, structure);
+clear output_spec_tmp
 
 end
 
