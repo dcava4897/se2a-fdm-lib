@@ -7,11 +7,17 @@ base_workspace_backup = baseWorkspaceBackup();
 %% trim with steady aerodynamics first
 aircraft = aircraftUnsteady2Steady( aircraft );
 
-fp_spec.Altitude    = {fp_spec.Altitude};
-fp_spec.EAS         = {fp_spec.EAS};
-fp_spec.MassCase    = {'unknown'};
-fp_spec.Aircraft    = {'unknown'};
-fp_spec.DefType     = 1; 
+% fp_spec.Altitude    = {fp_spec.Altitude};
+% fp_spec.EAS         = {fp_spec.EAS};
+if ~isfield(fp_spec, 'MassCase')
+    fp_spec.MassCase    = {'unknown'};
+end
+if ~isfield(fp_spec, 'Aircraft')
+    fp_spec.Aircraft    = {'unknown'};
+end
+if ~isfield(fp_spec, 'DefType')
+    fp_spec.DefType     = 1; 
+end
 fp_list             = flightPointListCreate(fp_spec);
 
 trim_spec = fp_list(1).Trim.Spec;

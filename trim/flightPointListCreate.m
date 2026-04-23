@@ -270,12 +270,27 @@ function spec_fp_tmp = Reshape_SpecFP(spec_fp_tmp)
     %Reshapes FP spec, s.t. numeric values are stored as a cell row array 
     fn = fieldnames(spec_fp_tmp);
     for ii = 1:length(fn)
+
         if iscell(spec_fp_tmp.(fn{ii}))
+        % Case 1: if it is stored as a numeric vector in a cell, convert it to
+        % a cell row array
             c2m_tmp = cell2mat(spec_fp_tmp.(fn{ii}));
             if isnumeric(c2m_tmp)
                 spec_fp_tmp.(fn{ii}) = num2cell(c2m_tmp);
             end
+        elseif isnumeric(spec_fp_tmp.(fn{ii})) && ismember(fn{ii}, {'Mach', 'EAS', 'Altitude'})
+        % Case 2: if it is just a numeric array (or scalar), and is
+        % supposed to be a cell row array, store it in a cell row array
+            spec_fp_tmp.(fn{ii}) = num2cell(spec_fp_tmp.(fn{ii}));
+        
+        elseif (ischar(spec_fp_tmp.(fn{ii})) || isstring(spec_fp_tmp.(fn{ii})))...
+                && ismember(fn{ii}, {'Aircraft', 'MassCase'})
+        % Case 3: if it is just a char/string row or array, and is
+        % supposed to be a cell row array, store it in a cell row array    
+            spec_fp_tmp.(fn{ii}) = cellstr(spec_fp_tmp.(fn{ii}));
         end
+            
+        
     end
         
 end
